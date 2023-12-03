@@ -6,25 +6,32 @@ import bmesh
 
 class Tools_VisualizeTransparentMaterial(bpy.types.Operator):
     bl_idname = "my.visualize_transparent_material"
-    bl_label = "투명 MMDShader 머티리얼 가시화"
-    bl_description = "Alpha=0 인 MMD Shader 머티리얼의 알파 값을 1로 변경합니다"
+    bl_label = "투명 MMDShader 매테리얼 가시화"
+    bl_description = "MMD Shader 매테리얼의 알파 값을 1로 변경합니다"
     
     def execute(self, context):
-        # Counter for the number of materials modified
-        count = 0
+        count_node = 0
+        count_mat = 0
         
         for material in bpy.data.materials:
             if material.use_nodes and "mmd_shader" in material.node_tree.nodes:
                 mmd_node = material.node_tree.nodes["mmd_shader"]
-                # Check if the 'mmd_shader' has enough inputs and the alpha is not already 1
                 if len(mmd_node.inputs) > 12 and mmd_node.inputs[12].default_value != 1.0:
                     mmd_node.inputs[12].default_value = 1.0
-                    count += 1
-                        
-        if count > 0:
-            self.report({'INFO'}, f"{count}개의 투명 머티리얼 가시화 완료")
+                    count_node += 1
+
+        for obj in bpy.data.objects:
+            if obj.type == 'MESH':
+                for material_slot in obj.material_slots:
+                    material = material_slot.material
+                    if material and hasattr(material, 'mmd_material') and material.mmd_material.alpha != 1:
+                        material.mmd_material.alpha = 1
+                        count_mat += 1
+        
+        if count_node + count_mat > 0:
+            self.report({'INFO'}, f"{count_node}개의 노드와 {count_mat}개의 매테리얼 가시화 완료.")
         else:
-            self.report({'INFO'}, "투명 머티리얼이 없습니다.")
+            self.report({'INFO'}, "투명 매테리얼이 없습니다.")
         
         return {'FINISHED'}
 

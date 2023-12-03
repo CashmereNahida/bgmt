@@ -2,7 +2,7 @@ bl_info = \
     {
         "name": "Genshin Mod Tools",
         "author": "CashmereNahida",
-        "version": (0, 1, 0),
+        "version": (0, 1, 1),
         "blender": (3, 6, 5),
         "location": "View3D > Sidebar > Genshin Mod Tools",
         "description": "모드 제작시 자주쓰는 기능 모음",

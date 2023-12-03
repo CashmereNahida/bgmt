@@ -1,8 +1,8 @@
 import bpy
 try:
-    from blender_genshin_mod_tools import PackageStatus
+    from bgmt import PackageStatus
 except ModuleNotFoundError:
-    from blender_genshin_mod_tools_001 import PackageStatus
+    from blender_genshin_mod_tools import PackageStatus
 from .._utils import show_info_message
 
 def update_max_texture_size(self, context):

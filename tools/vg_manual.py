@@ -25,19 +25,16 @@ def merge_vgs(obj, selected_vg_name):
         vg_index_to_name[vg.index] = vg.name
         vg_name_to_index[vg.name] = vg.index
 
-    # 합칠 대상 정점 그룹 찾기
     merge_target_names = [vg.name for vg in obj.vertex_groups if vg.name.startswith(base_name + ".") or vg.name == base_name]
     merge_target_indices = [vg_name_to_index[name] for name in merge_target_names if name in vg_name_to_index]
 
-    # 합치기
     for v in obj.data.vertices:
         total_weight = sum(vg.weight for vg in v.groups if vg.group in merge_target_indices)
         if total_weight > 0:
             obj.vertex_groups[base_name].add([v.index], total_weight, 'REPLACE')
 
-    # 제거
     for name in merge_target_names:
-        if name != base_name:  # 기본 이름 정점 그룹은 제거하지 않음
+        if name != base_name:
             obj.vertex_groups.remove(obj.vertex_groups[name])
 
 def calc_center_of_mass_per_vg(obj, weighted=False):
@@ -130,11 +127,17 @@ def draw_callback_px(self, context):
 def draw_text(text, position, font_id, font_size):
     x, y = bpy_extras.view3d_utils.location_3d_to_region_2d(bpy.context.region, bpy.context.region_data, position)
     if x is not None and y is not None:
-        blf.position(font_id, x, y, 0)
         blf.size(font_id, font_size)
+        text_width, text_height = blf.dimensions(font_id, text)
+
+        x -= text_width / 2
+        y -= text_height / 2
+
+        blf.position(font_id, x, y, 0)
         blf.draw(font_id, text)
         return x, y
     return None, None
+
 
 
 class StartDrawingVertexGroups(bpy.types.Operator):
@@ -144,7 +147,7 @@ class StartDrawingVertexGroups(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def modal(self, context, event):
-        global drawing_started  # drawing_started 변수를 글로벌로 선언
+        global drawing_started
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             mytool = context.scene.my_tool
             if mytool.quick_mapping and drawing_started:
@@ -157,7 +160,7 @@ class StartDrawingVertexGroups(bpy.types.Operator):
                 drawing_started = False
                 return {'CANCELLED'}
             
-        # Ctrl 키와 마우스 휠을 사용한 정점 그룹 변경 처리
+        # Ctrl 키와 마우스 휠을 사용한 정점 그룹 변경
         if event.type in {'WHEELUPMOUSE', 'WHEELDOWNMOUSE'} and event.ctrl:
             target_obj = context.active_object
             if target_obj and target_obj.type == 'MESH' and target_obj.vertex_groups:

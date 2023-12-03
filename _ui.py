@@ -361,22 +361,23 @@ class UsefulToolsPanel(MainPanel, bpy.types.Panel):
         my_tool = context.scene.my_tool
         obj = context.active_object
 
-        row = layout.row()
-        row.operator("my.visualize_transparent_material", text="MMDShader 가시화")
+        tool_box = layout.box()
+        tool_box.label(text="툴", icon='TOOL_SETTINGS')
+        tool_box.operator("my.visualize_transparent_material", text="MMDShader 가시화")
 
-        box = layout.box()
-        box.label(text="데시메이트", icon='MOD_DECIM')
+        deci_box = layout.box()
+        deci_box.label(text="데시메이트", icon='MOD_DECIM')
 
         if obj and obj.type == 'MESH':
             from .operator._usefultools import count_triangles, count_vertexes
             tri_count = count_triangles(obj)
             vert_count = count_vertexes(obj)
             
-            split_info = box.split(factor=0.5)
+            split_info = deci_box.split(factor=0.5)
             split_info.label(text=f"삼각폴리곤 개수: {tri_count}")
             split_info.label(text=f"버텍스 개수: {vert_count}")
 
-        split = box.split(factor=0.7)
+        split = deci_box.split(factor=0.7)
         split.prop(my_tool, "decimate_ratio", text="비율")
         split.operator("my.apply_decimate", text="적용")
 
@@ -386,12 +387,12 @@ class UsefulToolsPanel(MainPanel, bpy.types.Panel):
         solidify_split.prop(my_tool, "solidify_thickness", text="두께")
         solidify_split.operator("my.apply_solidify", text="적용")
 
-        merge_box = layout.box()
-        merge_box.label(text="3DMigoto 속성 전송")
-        merge_box.prop(my_tool, "target_object", text="Target Object")
-        merge_box.prop(my_tool, "base_object", text="Base Object")
+        transfer_box = layout.box()
+        transfer_box.label(text="3DMigoto 속성 전송")
+        transfer_box.prop(my_tool, "target_object", text="Target Object")
+        transfer_box.prop(my_tool, "base_object", text="Base Object")
         
-        merge_box.operator("transfer.properties")
+        transfer_box.operator("transfer.properties")
 
 class UpdateMenu(MainPanel, bpy.types.Panel):
     bl_label = 'Updates'
@@ -408,9 +409,9 @@ class UpdateMenu(MainPanel, bpy.types.Panel):
         addon_updater_ops.update_settings_ui(self, context)
 
         try:
-            from blender_genshin_mod_tools import PackageStatus
+            from bgmt import PackageStatus
         except ModuleNotFoundError:
-            from blender_genshin_mod_tools_001 import PackageStatus
+            from blender_genshin_mod_tools import PackageStatus
         status = PackageStatus.get_instance()
         package_list_str = ", ".join(status.packages)
         module_box = layout.box()

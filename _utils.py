@@ -42,6 +42,8 @@ class UIInstallModules(bpy.types.Operator):
 
     def execute(self, context):
         try:
+            from bgmt import PackageStatus
+        except ModuleNotFoundError:
             from blender_genshin_mod_tools import PackageStatus
             status = PackageStatus.get_instance()
             packages = status.packages
